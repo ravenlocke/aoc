@@ -4,7 +4,7 @@
 ///     - Each line in the input is of the form r"\d{5}\s{3}\d{5}\n" (i.e.,
 ///       this solution WILL NOT work on the example given in the description).
 ///     - There are 1,000 entries in the input.
-use rustc_hash::FxHashMap;
+use rustc_hash::{FxBuildHasher, FxHashMap};
 
 struct NumberIter<'a> {
     text: &'a str,
@@ -68,7 +68,7 @@ fn parse_input_part1(contents: &str) -> (Vec<i64>, Vec<i64>) {
 #[inline(always)]
 fn parse_input_part2(contents: &str) -> (Vec<i64>, FxHashMap<i64, i64>) {
     let mut list_a: Vec<i64> = Vec::with_capacity(1_000);
-    let mut b_count_map = FxHashMap::default();
+    let mut b_count_map = FxHashMap::with_capacity_and_hasher(1_000, FxBuildHasher);
 
     let number_iter = NumberIter::new(contents);
     for (idx, number) in number_iter.enumerate() {
