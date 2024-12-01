@@ -23,8 +23,9 @@ impl<'a> Iterator for NumberIter<'a> {
 
         for c in &self.text.as_bytes()[self.pos..self.pos + 5] {
             n *= 10;
-            n += (*c - 48) as i64;
+            n += *c as i64;
         }
+        n -= 533_328;
 
         if self.extra_skip {
             self.pos += 8;
@@ -52,16 +53,13 @@ fn parse_input_part1(contents: &str) -> (Vec<i64>, Vec<i64>) {
     let mut list_a: Vec<i64> = Vec::with_capacity(1_000);
     let mut list_b: Vec<i64> = Vec::with_capacity(1_000);
 
-    let mut populate_a = true;
-
     let number_iter = NumberIter::new(contents);
-    for number in number_iter {
-        if populate_a {
+    for (idx, number) in number_iter.enumerate() {
+        if idx % 2 == 0 {
             list_a.push(number);
         } else {
             list_b.push(number);
         }
-        populate_a ^= true
     }
 
     (list_a, list_b)
@@ -72,16 +70,13 @@ fn parse_input_part2(contents: &str) -> (Vec<i64>, FxHashMap<i64, i64>) {
     let mut list_a: Vec<i64> = Vec::with_capacity(1_000);
     let mut b_count_map = FxHashMap::default();
 
-    let mut populate_a = true;
-
     let number_iter = NumberIter::new(contents);
-    for number in number_iter {
-        if populate_a {
+    for (idx, number) in number_iter.enumerate() {
+        if idx % 2 == 0 {
             list_a.push(number);
         } else {
             *b_count_map.entry(number).or_default() += 1;
         }
-        populate_a ^= true
     }
 
     (list_a, b_count_map)
