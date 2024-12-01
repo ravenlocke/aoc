@@ -1,19 +1,13 @@
 use rustc_hash::FxHashMap;
-use std::{fs::File, io::Read};
 
-fn parse_input(infile: &str) -> (Vec<i64>, Vec<i64>) {
-    let mut buffer = String::new();
-    File::open(infile)
-        .expect("could not open file")
-        .read_to_string(&mut buffer)
-        .expect("");
+fn parse_input(contents: &str) -> (Vec<i64>, Vec<i64>) {
     let mut list_a: Vec<i64> = Vec::new();
     let mut list_b: Vec<i64> = Vec::new();
 
     let mut populate_a = true;
 
     let mut n: i64 = 0;
-    for char in buffer.chars() {
+    for char in contents.chars() {
         if char.is_ascii_digit() {
             n *= 10;
             n += (char as i64) - 48
@@ -32,8 +26,8 @@ fn parse_input(infile: &str) -> (Vec<i64>, Vec<i64>) {
     (list_a, list_b)
 }
 
-pub fn part1(infile: &str) -> i64 {
-    let (mut a, mut b) = parse_input(infile);
+pub fn part1(contents: &str) -> i64 {
+    let (mut a, mut b) = parse_input(contents);
 
     a.sort_unstable();
     b.sort_unstable();
@@ -41,8 +35,8 @@ pub fn part1(infile: &str) -> i64 {
     a.iter().zip(b.iter()).map(|(i, j)| (i - j).abs()).sum()
 }
 
-pub fn part2(infile: &str) -> i64 {
-    let (a, b) = parse_input(infile);
+pub fn part2(contents: &str) -> i64 {
+    let (a, b) = parse_input(contents);
     let map = {
         let mut m = FxHashMap::default();
         b.iter().for_each(|i| *m.entry(*i).or_default() += 1);
@@ -58,13 +52,15 @@ mod tests {
 
     #[test]
     fn test_part_one_solution() {
-        let result = part1("inputs/day01.txt");
+        let contents = include_str!("../inputs/day01.txt");
+        let result = part1(&contents);
         assert_eq!(result, 1_882_714);
     }
 
     #[test]
     fn test_part_two_solution() {
-        let result = part2("inputs/day01.txt");
+        let contents = include_str!("../inputs/day01.txt");
+        let result = part2(contents);
         assert_eq!(result, 19_437_052);
     }
 }
