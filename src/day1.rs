@@ -32,7 +32,7 @@ fn parse_input(infile: &str) -> (Vec<i64>, Vec<i64>) {
     (list_a, list_b)
 }
 
-pub fn part_one(infile: &str) -> i64 {
+pub fn part1(infile: &str) -> i64 {
     let (mut a, mut b) = parse_input(infile);
 
     a.sort_unstable();
@@ -41,7 +41,7 @@ pub fn part_one(infile: &str) -> i64 {
     a.iter().zip(b.iter()).map(|(i, j)| (i - j).abs()).sum()
 }
 
-pub fn part_two(infile: &str) -> i64 {
+pub fn part2(infile: &str) -> i64 {
     let (a, b) = parse_input(infile);
     let map = {
         let mut m = FxHashMap::default();
@@ -58,13 +58,13 @@ mod tests {
 
     #[test]
     fn test_part_one_solution() {
-        let result = part_one("inputs/day01.txt");
+        let result = part1("inputs/day01.txt");
         assert_eq!(result, 1_882_714);
     }
 
     #[test]
     fn test_part_two_solution() {
-        let result = part_two("inputs/day01.txt");
+        let result = part2("inputs/day01.txt");
         assert_eq!(result, 19_437_052);
     }
 }
