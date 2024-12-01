@@ -6,6 +6,8 @@
 ///     - There are 1,000 entries in the input.
 use rustc_hash::{FxBuildHasher, FxHashMap};
 
+const CAPACITY: usize = 1_000;
+
 struct NumberIter<'a> {
     text: &'a str,
     pos: usize,
@@ -49,37 +51,37 @@ impl<'a> NumberIter<'a> {
 }
 
 #[inline(always)]
-fn parse_input_part1(contents: &str) -> (Vec<i64>, Vec<i64>) {
-    let mut list_a: Vec<i64> = Vec::with_capacity(1_000);
-    let mut list_b: Vec<i64> = Vec::with_capacity(1_000);
+fn parse_input_part1(contents: &str) -> ([i64; CAPACITY], [i64; CAPACITY]) {
+    let mut arr_a = [0; CAPACITY];
+    let mut arr_b = [0; CAPACITY];
 
     let number_iter = NumberIter::new(contents);
     for (idx, number) in number_iter.enumerate() {
         if idx % 2 == 0 {
-            list_a.push(number);
+            arr_a[idx / 2] = number;
         } else {
-            list_b.push(number);
+            arr_b[idx / 2] = number;
         }
     }
 
-    (list_a, list_b)
+    (arr_a, arr_b)
 }
 
 #[inline(always)]
-fn parse_input_part2(contents: &str) -> (Vec<i64>, FxHashMap<i64, i64>) {
-    let mut list_a: Vec<i64> = Vec::with_capacity(1_000);
-    let mut b_count_map = FxHashMap::with_capacity_and_hasher(1_000, FxBuildHasher);
+fn parse_input_part2(contents: &str) -> ([i64; CAPACITY], FxHashMap<i64, i64>) {
+    let mut arr_a = [0; CAPACITY];
+    let mut b_count_map = FxHashMap::with_capacity_and_hasher(CAPACITY, FxBuildHasher);
 
     let number_iter = NumberIter::new(contents);
     for (idx, number) in number_iter.enumerate() {
         if idx % 2 == 0 {
-            list_a.push(number);
+            arr_a[idx / 2] = number;
         } else {
             *b_count_map.entry(number).or_default() += 1;
         }
     }
 
-    (list_a, b_count_map)
+    (arr_a, b_count_map)
 }
 
 pub fn part1(contents: &str) -> i64 {
