@@ -14,7 +14,7 @@ struct NumberIter<'a> {
     extra_skip: bool,
 }
 
-impl<'a> Iterator for NumberIter<'a> {
+impl Iterator for NumberIter<'_> {
     type Item = i64;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -40,7 +40,7 @@ impl<'a> Iterator for NumberIter<'a> {
     }
 }
 
-impl<'a> NumberIter<'a> {
+impl NumberIter<'_> {
     fn new(text: &str) -> NumberIter {
         NumberIter {
             text,

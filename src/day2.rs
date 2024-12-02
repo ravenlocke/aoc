@@ -1,11 +1,9 @@
-// TODO: Try using an array instead of a vector.
-
-struct PartTwoParse<'a> {
+struct InputParser<'a> {
     content: &'a str,
     idx: usize,
 }
 
-impl<'a> PartTwoParse<'a> {
+impl InputParser<'_> {
     fn parse_next(&mut self, vec: &mut Vec<i64>) -> bool {
         let mut n = 0i64;
 
@@ -23,17 +21,15 @@ impl<'a> PartTwoParse<'a> {
                 n = 0
             }
         }
-        return false;
+        false
+    }
+
+    fn new(content: &str) -> InputParser {
+        InputParser { content, idx: 0 }
     }
 }
 
-impl PartTwoParse<'_> {
-    fn new(content: &str) -> PartTwoParse {
-        PartTwoParse { content, idx: 0 }
-    }
-}
-
-fn is_good_list(list: &[i64]) -> bool {
+fn is_safe_list(list: &[i64]) -> bool {
     let mut iterator = list.iter().filter(|i| **i != i64::MAX);
 
     let (mut current, mut next) = (
@@ -60,10 +56,10 @@ fn is_good_list(list: &[i64]) -> bool {
 pub fn part1(contents: &str) -> usize {
     let mut count = 0usize;
     let mut list = vec![];
-    let mut parser = PartTwoParse::new(contents);
+    let mut parser = InputParser::new(contents);
 
     while parser.parse_next(&mut list) {
-        if is_good_list(&list) {
+        if is_safe_list(&list) {
             count += 1
         }
         list.clear();
@@ -75,13 +71,13 @@ pub fn part1(contents: &str) -> usize {
 pub fn part2(contents: &str) -> usize {
     let mut count = 0usize;
     let mut list = vec![];
-    let mut parser = PartTwoParse::new(contents);
+    let mut parser = InputParser::new(contents);
 
     while parser.parse_next(&mut list) {
         if (0..list.len()).any(|idx| {
             let removed = list[idx];
             list[idx] = i64::MAX;
-            let to_return = is_good_list(&list);
+            let to_return = is_safe_list(&list);
             list[idx] = removed;
             to_return
         }) {
