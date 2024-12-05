@@ -21,11 +21,18 @@ fn criterion_benchmark(c: &mut Criterion) {
     });
 
     let contents: &str = include_str!("../inputs/day03.txt");
-
     c.bench_function("Day 03, Part 1", |b| {
         b.iter(|| day3::part1(black_box(contents)))
     });
     c.bench_function("Day 03, Part 2", |b| {
+        b.iter(|| day3::part2(black_box(contents)))
+    });
+
+    let contents: &str = include_str!("../inputs/day04.txt");
+    c.bench_function("Day 04, Part 1", |b| {
+        b.iter(|| day3::part1(black_box(contents)))
+    });
+    c.bench_function("Day 04, Part 2", |b| {
         b.iter(|| day3::part2(black_box(contents)))
     });
 }

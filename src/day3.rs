@@ -1,6 +1,6 @@
 macro_rules! check_and_increment_pt1 {
     ($ix:expr, $str:expr, $char:expr ) => {
-        if $ix >= $str.len() || $str[$ix] != $char  {
+        if $ix >= $str.len() || $str[$ix] != $char {
             return (0, $ix);
         }
         $ix += 1;
@@ -124,12 +124,12 @@ pub fn part1(content: &str) -> u64 {
     let mut result = 0;
 
     while idx + 4 < content.len() {
-        if &content.as_bytes()[idx..idx+4] != b"mul(" {
+        if &content.as_bytes()[idx..idx + 4] != b"mul(" {
             idx += 1;
             continue;
         }
         let tmp;
-        
+
         (tmp, idx) = parse_mul(content.as_bytes(), idx + 4);
         result += tmp;
     }
