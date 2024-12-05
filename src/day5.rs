@@ -11,25 +11,24 @@ fn parse_two_digit_radix_10(input: &[u8]) -> usize {
     n
 }
 
-
-struct LineParser <'a> {
+struct LineParser<'a> {
     idx: usize,
-    content: &'a str
+    content: &'a str,
 }
 
-impl LineParser <'_> {
+impl LineParser<'_> {
     fn new(content: &str) -> LineParser {
-        LineParser{content, idx: 0}
+        LineParser { content, idx: 0 }
     }
 
     fn parse_next(&mut self, vec: &mut Vec<usize>) -> bool {
         while self.idx + 2 < self.content.len() {
-            let x = parse_two_digit_radix_10( &self.content.as_bytes()[self.idx..self.idx+2] );
+            let x = parse_two_digit_radix_10(&self.content.as_bytes()[self.idx..self.idx + 2]);
             vec.push(x);
-            
+
             if self.content.as_bytes()[self.idx + 2] == b'\n' {
                 self.idx += 3;
-                return true
+                return true;
             }
 
             self.idx += 3;
@@ -40,7 +39,7 @@ impl LineParser <'_> {
 }
 
 fn is_ordered(vec: &Vec<usize>, rels: &[[Ordering; 128]; 128]) -> bool {
-    (0..vec.len()-1).all(|i| rels[vec[i]][vec[i+1]] == Ordering::Less)
+    (0..vec.len() - 1).all(|i| rels[vec[i]][vec[i + 1]] == Ordering::Less)
 }
 
 pub fn part1(content: &str) -> u64 {
@@ -53,7 +52,7 @@ pub fn part1(content: &str) -> u64 {
         rels[a][b] = Ordering::Less;
     }
 
-    let mut lp = LineParser::new(&content[1_176 * 6 + 1 ..]);
+    let mut lp = LineParser::new(&content[1_176 * 6 + 1..]);
     let mut vec = Vec::<usize>::with_capacity(23);
     let mut total = 0;
     while lp.parse_next(&mut vec) {
@@ -75,7 +74,7 @@ pub fn part2(content: &str) -> u64 {
         rels[a][b] = Ordering::Less;
     }
 
-    let mut lp = LineParser::new(&content[1_176 * 6 + 1 ..]);
+    let mut lp = LineParser::new(&content[1_176 * 6 + 1..]);
     let mut vec = Vec::<usize>::with_capacity(23);
     let mut total = 0;
 
@@ -86,7 +85,7 @@ pub fn part2(content: &str) -> u64 {
         }
         vec.clear();
     }
-    
+
     total as u64
 }
 
