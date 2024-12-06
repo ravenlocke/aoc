@@ -3,6 +3,7 @@ use rayon::iter::ParallelIterator;
 use rustc_hash::FxHashSet;
 
 const GRID_DIM: usize = 130;
+const ARR_SIZE: usize = (GRID_DIM - 2) << 9 | (GRID_DIM - 2) << 2 | 3;
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, Copy)]
 enum Direction {
@@ -18,12 +19,12 @@ struct LoopChecker<'a> {
 }
 
 fn pos_and_direction_to_usize(position: (usize, usize), direction: Direction) -> usize {
-    (position.0 << 10) | (position.1 << 2) | direction as usize
+    ((position.0 - 1) << 9) | ((position.1 - 1)) << 2 | direction as usize
 }
 
 impl LoopChecker<'_> {
     fn has_loop(&mut self) -> bool {
-        let mut visited = [false; GRID_DIM << 10 | GRID_DIM << 2 | 3];
+        let mut visited =  [false; ARR_SIZE];
         loop {
             // Move NORTH
             while self.position.0 > 0 && self.grid[self.position.0 - 1][self.position.1] {
