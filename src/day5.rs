@@ -31,7 +31,7 @@ impl LineParser<'_> {
     }
 }
 
-fn is_ordered(vec: &Vec<usize>, rels: &[[Ordering; 128]; 128]) -> bool {
+fn is_ordered(vec: &[usize], rels: &[[Ordering; 128]; 128]) -> bool {
     (0..vec.len() - 1).all(|i| rels[vec[i]][vec[i + 1]] == Ordering::Less)
 }
 

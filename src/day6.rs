@@ -5,12 +5,11 @@ use rustc_hash::FxHashSet;
 const GRID_DIM: usize = 130;
 const ARR_SIZE: usize = (GRID_DIM - 2) << 9 | (GRID_DIM - 2) << 2 | 3;
 
-#[derive(Debug, Hash, PartialEq, Eq, Clone, Copy)]
 enum Direction {
-    NORTH = 0,
-    SOUTH = 1,
-    EAST = 2,
-    WEST = 3,
+    North = 0,
+    South = 1,
+    East = 2,
+    West = 3,
 }
 
 struct LoopChecker<'a> {
@@ -38,7 +37,7 @@ impl LoopChecker<'_> {
             if self.position.0 == 0 {
                 return false;
             } else {
-                let idx: usize = pos_and_direction_to_usize(self.position, Direction::NORTH);
+                let idx: usize = pos_and_direction_to_usize(self.position, Direction::North);
                 if *visited.get_unchecked(idx) {
                     return true;
                 } else {
@@ -58,7 +57,7 @@ impl LoopChecker<'_> {
             if self.position.1 == GRID_DIM - 1 {
                 return false;
             } else {
-                let idx: usize = pos_and_direction_to_usize(self.position, Direction::EAST);
+                let idx: usize = pos_and_direction_to_usize(self.position, Direction::East);
                 if *visited.get_unchecked(idx) {
                     return true;
                 } else {
@@ -78,7 +77,7 @@ impl LoopChecker<'_> {
             if self.position.0 == GRID_DIM - 1 {
                 return false;
             } else {
-                let idx: usize = pos_and_direction_to_usize(self.position, Direction::SOUTH);
+                let idx: usize = pos_and_direction_to_usize(self.position, Direction::South);
                 if *visited.get_unchecked(idx) {
                     return true;
                 } else {
@@ -98,7 +97,7 @@ impl LoopChecker<'_> {
             if self.position.1 == 0 {
                 return false;
             } else {
-                let idx: usize = pos_and_direction_to_usize(self.position, Direction::WEST);
+                let idx: usize = pos_and_direction_to_usize(self.position, Direction::West);
                 if *visited.get_unchecked(idx) {
                     return true;
                 } else {
