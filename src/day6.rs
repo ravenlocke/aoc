@@ -15,86 +15,72 @@ enum Direction {
 struct LoopChecker<'a> {
     position: (usize, usize),
     visited: FxHashSet<usize>,
-    direction: Direction,
     grid: &'a [[bool; GRID_DIM]],
 }
 
 fn pos_and_direction_to_usize(position: (usize, usize), direction: Direction) -> usize {
-    0 | (position.0 << 11) | (position.1 << 2) | direction as usize
+    (position.0 << 11) | (position.1 << 2) | direction as usize
 }
 
 impl LoopChecker<'_> {
     fn has_loop(&mut self) -> bool {
         loop {
-            match self.direction {
-                Direction::NORTH => {
-                    while self.position.0 > 0 && self.grid[self.position.0 - 1][self.position.1] {
-                        self.position.0 -= 1;
-                        if !self
-                            .visited
-                            .insert(pos_and_direction_to_usize(self.position, self.direction))
-                        {
-                            return true;
-                        }
-                    }
-                    if self.position.0 == 0 {
-                        return false;
-                    }
+            // Move NORTH
+            while self.position.0 > 0 && self.grid[self.position.0 - 1][self.position.1] {
+                self.position.0 -= 1;
+                if !self
+                    .visited
+                    .insert(pos_and_direction_to_usize(self.position, Direction::NORTH))
+                {
+                    return true;
                 }
-                Direction::SOUTH => {
-                    while self.position.0 < GRID_DIM - 1
-                        && self.grid[self.position.0 + 1][self.position.1]
-                    {
-                        self.position.0 += 1;
-                        if !self
-                            .visited
-                            .insert(pos_and_direction_to_usize(self.position, self.direction))
-                        {
-                            return true;
-                        }
-                    }
+            }
+            if self.position.0 == 0 {
+                return false;
+            }
 
-                    if self.position.0 == GRID_DIM - 1 {
-                        return false;
-                    }
+            // Move EAST
+            while self.position.1 < GRID_DIM - 1 && self.grid[self.position.0][self.position.1 + 1]
+            {
+                self.position.1 += 1;
+                if !self
+                    .visited
+                    .insert(pos_and_direction_to_usize(self.position, Direction::EAST))
+                {
+                    return true;
                 }
-                Direction::EAST => {
-                    while self.position.1 < GRID_DIM - 1
-                        && self.grid[self.position.0][self.position.1 + 1]
-                    {
-                        self.position.1 += 1;
-                        if !self
-                            .visited
-                            .insert(pos_and_direction_to_usize(self.position, self.direction))
-                        {
-                            return true;
-                        }
-                    }
-                    if self.position.1 == GRID_DIM - 1 {
-                        return false;
-                    }
-                }
-                Direction::WEST => {
-                    while self.position.1 > 0 && self.grid[self.position.0][self.position.1 - 1] {
-                        self.position.1 -= 1;
-                        if !self
-                            .visited
-                            .insert(pos_and_direction_to_usize(self.position, self.direction))
-                        {
-                            return true;
-                        }
-                    }
-                    if self.position.1 == 0 {
-                        return false;
-                    }
-                }
-            };
+            }
+            if self.position.1 == GRID_DIM - 1 {
+                return false;
+            }
 
-            self.direction = match self.direction {
-                Direction::EAST => Direction::SOUTH,
-                Direction::NORTH => Direction::EAST,
-                Direction::WEST => Direction::NORTH,
-                Direction::SOUTH => Direction::WEST,
+            // Move SOUTH
+            while self.position.0 < GRID_DIM - 1 && self.grid[self.position.0 + 1][self.position.1]
+            {
+                self.position.0 += 1;
+                if !self
+                    .visited
+                    .insert(pos_and_direction_to_usize(self.position, Direction::SOUTH))
+                {
+                    return true;
+                }
+            }
+            if self.position.0 == GRID_DIM - 1 {
+                return false;
+            }
+
+            // Move WEST
+            while self.position.1 > 0 && self.grid[self.position.0][self.position.1 - 1] {
+                self.position.1 -= 1;
+                if !self
+                    .visited
+                    .insert(pos_and_direction_to_usize(self.position, Direction::WEST))
+                {
+                    return true;
+                }
+            }
+            if self.position.1 == 0 {
+                return false;
             }
         }
     }
@@ -103,72 +89,53 @@ impl LoopChecker<'_> {
 struct MovementTracker<'a> {
     position: (usize, usize),
     visited: Vec<(usize, usize)>,
-    direction: Direction,
     grid: &'a [[bool; GRID_DIM]],
 }
 
 impl MovementTracker<'_> {
-    fn move_untl_end(&mut self) {
-        while self.move_in_direction() {
-            self.direction = match self.direction {
-                Direction::EAST => Direction::SOUTH,
-                Direction::NORTH => Direction::EAST,
-                Direction::WEST => Direction::NORTH,
-                Direction::SOUTH => Direction::WEST,
-            }
-        }
-    }
-
     fn spaces_visited(&mut self) -> FxHashSet<&(usize, usize)> {
         self.visited.iter().collect::<FxHashSet<_>>()
     }
 
-    fn move_in_direction(&mut self) -> bool {
-        match self.direction {
-            Direction::NORTH => {
-                while self.position.0 > 0 && self.grid[self.position.0 - 1][self.position.1] {
-                    self.position.0 -= 1;
-                    self.visited.push(self.position);
-                }
-                if self.position.0 == 0 {
-                    return false;
-                }
-                true
+    fn move_until_end(&mut self) {
+        loop {
+            // Move NORTH
+            while self.position.0 > 0 && self.grid[self.position.0 - 1][self.position.1] {
+                self.position.0 -= 1;
+                self.visited.push(self.position);
             }
-            Direction::SOUTH => {
-                while self.position.0 < GRID_DIM - 1
-                    && self.grid[self.position.0 + 1][self.position.1]
-                {
-                    self.position.0 += 1;
-                    self.visited.push(self.position);
-                }
+            if self.position.0 == 0 {
+                break;
+            }
 
-                if self.position.0 == GRID_DIM - 1 {
-                    return false;
-                }
-                return true;
+            // Move EAST
+            while self.position.1 < GRID_DIM - 1 && self.grid[self.position.0][self.position.1 + 1]
+            {
+                self.position.1 += 1;
+                self.visited.push(self.position);
             }
-            Direction::EAST => {
-                while self.position.1 < GRID_DIM - 1
-                    && self.grid[self.position.0][self.position.1 + 1]
-                {
-                    self.position.1 += 1;
-                    self.visited.push(self.position);
-                }
-                if self.position.1 == GRID_DIM - 1 {
-                    return false;
-                }
-                true
+            if self.position.1 == GRID_DIM - 1 {
+                break;
             }
-            Direction::WEST => {
-                while self.position.1 > 0 && self.grid[self.position.0][self.position.1 - 1] {
-                    self.position.1 -= 1;
-                    self.visited.push(self.position);
-                }
-                if self.position.1 == 0 {
-                    return false;
-                }
-                true
+
+            // Move SOUTH
+            while self.position.0 < GRID_DIM - 1 && self.grid[self.position.0 + 1][self.position.1]
+            {
+                self.position.0 += 1;
+                self.visited.push(self.position);
+            }
+
+            if self.position.0 == GRID_DIM - 1 {
+                break;
+            }
+
+            // Move WEST
+            while self.position.1 > 0 && self.grid[self.position.0][self.position.1 - 1] {
+                self.position.1 -= 1;
+                self.visited.push(self.position);
+            }
+            if self.position.1 == 0 {
+                break;
             }
         }
     }
@@ -208,12 +175,11 @@ pub fn part1(content: &str) -> u64 {
     let mut mt = MovementTracker {
         position: guard_start,
         visited: Vec::with_capacity(10_000),
-        direction: Direction::NORTH,
         grid: &grid,
     };
     mt.visited.push(mt.position);
 
-    mt.move_untl_end();
+    mt.move_until_end();
     mt.spaces_visited().len() as u64
 }
 
@@ -223,12 +189,10 @@ pub fn part2(content: &str) -> usize {
     let mut mt = MovementTracker {
         position: guard_start,
         visited: Vec::with_capacity(10_000),
-        direction: Direction::NORTH,
         grid: &grid,
     };
 
-    mt.move_untl_end();
-
+    mt.move_until_end();
     mt.spaces_visited()
         .par_iter()
         .filter(|space| {
@@ -238,7 +202,6 @@ pub fn part2(content: &str) -> usize {
                 grid: &mod_grid,
                 position: guard_start,
                 visited: FxHashSet::default(),
-                direction: Direction::NORTH,
             };
             loop_check.has_loop()
         })
