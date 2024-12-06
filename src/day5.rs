@@ -1,14 +1,7 @@
 use std::cmp::Ordering;
 
 fn parse_two_digit_radix_10(input: &[u8]) -> usize {
-    let mut n = 0;
-    for i in input {
-        n *= 10;
-        n += *i as usize
-    }
-    n -= 528;
-
-    n
+    (input[0] as usize * 10 + input[1] as usize) - 528
 }
 
 struct LineParser<'a> {
