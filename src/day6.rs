@@ -19,72 +19,90 @@ struct LoopChecker<'a> {
 }
 
 fn pos_and_direction_to_usize(position: (usize, usize), direction: Direction) -> usize {
-    ((position.0 - 1) << 9) | ((position.1 - 1)) << 2 | direction as usize
+    ((position.0 - 1) << 9) | (position.1 - 1) << 2 | direction as usize
 }
 
 impl LoopChecker<'_> {
-    fn has_loop(&mut self) -> bool {
-        let mut visited =  [false; ARR_SIZE];
+    unsafe fn has_loop(&mut self) -> bool {
+        let mut visited = [false; ARR_SIZE];
         loop {
             // Move NORTH
-            while self.position.0 > 0 && self.grid[self.position.0 - 1][self.position.1] {
+            while self.position.0 > 0
+                && *self
+                    .grid
+                    .get_unchecked(self.position.0 - 1)
+                    .get_unchecked(self.position.1)
+            {
                 self.position.0 -= 1;
             }
             if self.position.0 == 0 {
                 return false;
             } else {
-                let idx = pos_and_direction_to_usize(self.position, Direction::NORTH);
-                if visited[idx] {
+                let idx: usize = pos_and_direction_to_usize(self.position, Direction::NORTH);
+                if *visited.get_unchecked(idx) {
                     return true;
                 } else {
-                    visited[idx] = true
+                    *visited.get_unchecked_mut(idx) = true
                 }
             }
 
             // Move EAST
-            while self.position.1 < GRID_DIM - 1 && self.grid[self.position.0][self.position.1 + 1]
+            while self.position.1 < GRID_DIM - 1
+                && *self
+                    .grid
+                    .get_unchecked(self.position.0)
+                    .get_unchecked(self.position.1 + 1)
             {
                 self.position.1 += 1;
             }
             if self.position.1 == GRID_DIM - 1 {
                 return false;
             } else {
-                let idx = pos_and_direction_to_usize(self.position, Direction::EAST);
-                if visited[idx] {
+                let idx: usize = pos_and_direction_to_usize(self.position, Direction::EAST);
+                if *visited.get_unchecked(idx) {
                     return true;
                 } else {
-                    visited[idx] = true
+                    *visited.get_unchecked_mut(idx) = true
                 }
             }
 
             // Move SOUTH
-            while self.position.0 < GRID_DIM - 1 && self.grid[self.position.0 + 1][self.position.1]
+            while self.position.0 < GRID_DIM - 1
+                && *self
+                    .grid
+                    .get_unchecked(self.position.0 + 1)
+                    .get_unchecked(self.position.1)
             {
                 self.position.0 += 1;
             }
             if self.position.0 == GRID_DIM - 1 {
                 return false;
             } else {
-                let idx = pos_and_direction_to_usize(self.position, Direction::SOUTH);
-                if visited[idx] {
+                let idx: usize = pos_and_direction_to_usize(self.position, Direction::SOUTH);
+                if *visited.get_unchecked(idx) {
                     return true;
                 } else {
-                    visited[idx] = true
+                    *visited.get_unchecked_mut(idx) = true
                 }
             }
 
             // Move WEST
-            while self.position.1 > 0 && self.grid[self.position.0][self.position.1 - 1] {
+            while self.position.1 > 0
+                && *self
+                    .grid
+                    .get_unchecked(self.position.0)
+                    .get_unchecked(self.position.1 - 1)
+            {
                 self.position.1 -= 1;
             }
             if self.position.1 == 0 {
                 return false;
             } else {
-                let idx = pos_and_direction_to_usize(self.position, Direction::WEST);
-                if visited[idx] {
+                let idx: usize = pos_and_direction_to_usize(self.position, Direction::WEST);
+                if *visited.get_unchecked(idx) {
                     return true;
                 } else {
-                    visited[idx] = true
+                    *visited.get_unchecked_mut(idx) = true
                 }
             }
         }
@@ -207,7 +225,7 @@ pub fn part2(content: &str) -> usize {
                 grid: &mod_grid,
                 position: guard_start,
             };
-            loop_check.has_loop()
+            unsafe { loop_check.has_loop() }
         })
         .count()
 }
