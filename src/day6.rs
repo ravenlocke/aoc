@@ -1,5 +1,3 @@
-use rayon::iter::IntoParallelRefIterator;
-use rayon::iter::ParallelIterator;
 use rustc_hash::FxHashSet;
 
 const GRID_DIM: usize = 130;
@@ -216,7 +214,7 @@ pub fn part2(content: &str) -> usize {
 
     mt.move_until_end();
     mt.spaces_visited()
-        .par_iter()
+        .iter()
         .filter(|space| {
             let mut mod_grid = grid;
             mod_grid[space.0][space.1] = false;

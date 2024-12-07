@@ -28,7 +28,6 @@ name = "aoc-2024"
 version = "0.1.0"
 dependencies = [
  "criterion",
- "rayon",
  "rustc-hash",
 ]
 

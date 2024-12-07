@@ -1,5 +1,3 @@
-use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
-
 #[derive(Debug, Clone)]
 struct ParsedRow {
     target: usize,
@@ -110,7 +108,7 @@ pub fn part1(content: &str) -> usize {
 pub fn part2(content: &str) -> usize {
     let rows = LineParser::new(content).collect::<Vec<_>>();
 
-    rows.par_iter()
+    rows.iter()
         .map(|row| {
             if unsafe { is_valid_pt2(row.target, 0, &row.numbers) } {
                 row.target
