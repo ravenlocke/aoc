@@ -79,21 +79,16 @@ unsafe fn is_valid_pt1(target: usize, current: usize, numbers: &[usize]) -> bool
 }
 
 unsafe fn is_valid_pt2(target: usize, current: usize, numbers: &[usize]) -> bool {
+    let add = current + numbers.get_unchecked(0);
+    let mul = current * numbers.get_unchecked(0);
+    let concat = concatenate(current, *numbers.get_unchecked(0));
+
     if numbers.len() == 1 {
-        return current + numbers.get_unchecked(0) == target
-            || current * numbers.get_unchecked(0) == target
-            || concatenate(current, *numbers.get_unchecked(0)) == target;
+        return add == target || mul == target || concat == target;
     } else {
-        if current > target {
-            return false;
-        }
-        return is_valid_pt2(target, current + numbers.get_unchecked(0), &numbers[1..])
-            || is_valid_pt2(target, current * numbers.get_unchecked(0), &numbers[1..])
-            || is_valid_pt2(
-                target,
-                concatenate(current, *numbers.get_unchecked(0)),
-                &numbers[1..],
-            );
+        return (add <= target && is_valid_pt2(target, add, &numbers[1..]))
+            || (mul <= target && is_valid_pt2(target, mul, &numbers[1..]))
+            || (concat <= target && is_valid_pt2(target, concat, &numbers[1..]));
     }
 }
 
