@@ -70,10 +70,11 @@ fn concatenate(a: usize, b: usize) -> usize {
 
 unsafe fn is_valid_pt1(target: usize, current: usize, numbers: &[usize]) -> bool {
     if numbers.len() == 1 {
-        return current + numbers[0] == target || current * numbers[0] == target;
+        return current + numbers.get_unchecked(0) == target
+            || current * numbers.get_unchecked(0) == target;
     } else {
-        return is_valid_pt1(target, current + numbers[0], &numbers[1..])
-            || is_valid_pt1(target, current * numbers[0], &numbers[1..]);
+        return is_valid_pt1(target, current + numbers.get_unchecked(0), &numbers[1..])
+            || is_valid_pt1(target, current * numbers.get_unchecked(0), &numbers[1..]);
     }
 }
 
