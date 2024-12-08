@@ -1,7 +1,7 @@
 use std::{
     fmt::Display,
     isize,
-    ops::{Add, Mul, Sub},
+    ops::{Add, AddAssign, Mul, Sub, SubAssign},
     usize,
 };
 
@@ -64,10 +64,24 @@ impl Add<Delta> for Point {
     }
 }
 
+impl AddAssign<Delta> for Point {
+    fn add_assign(&mut self, rhs: Delta) {
+        self.0 += rhs.0;
+        self.1 += rhs.1;
+    }
+}
+
 impl Sub<Delta> for Point {
     type Output = Point;
     fn sub(self, rhs: Delta) -> Self::Output {
         Point(self.0 - rhs.0, self.1 - rhs.1)
+    }
+}
+
+impl SubAssign<Delta> for Point {
+    fn sub_assign(&mut self, rhs: Delta) {
+        self.0 -= rhs.0;
+        self.1 -= rhs.1;
     }
 }
 
@@ -214,13 +228,13 @@ pub fn part2(content: &str) -> usize {
                 let mut loc = point_a - diff;
                 while grid.contains(loc) {
                     unsafe { grid.set_unchecked(loc) };
-                    loc = loc - diff;                    
+                    loc -= diff;                    
                 }
 
                 loc = point_b + diff;
                 while grid.contains(loc) {
                     unsafe { grid.set_unchecked(loc) };
-                    loc = loc + diff
+                    loc += diff
                 }
             }
         }

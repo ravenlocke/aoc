@@ -1,14 +1,31 @@
-#[derive(Debug, Clone)]
+struct SmallVec<T, const M: usize> {
+    data: [T;M],
+    counter: usize
+}
+
+impl <T: Default + Copy, const M: usize> Default for SmallVec<T, M> {
+    fn default() -> Self {
+        SmallVec{data: [T::default(); M], counter:0}
+    }
+}
+
+impl <T, const M: usize> SmallVec<T, M> {
+    fn push(&mut self, item: T) {
+        self.data[self.counter] = item;
+        self.counter += 1;
+    }
+}
+
 struct ParsedRow {
     target: usize,
-    numbers: Vec<usize>,
+    numbers: SmallVec<usize, 20>,
 }
 
 impl ParsedRow {
     fn maybe_possible_pt1(&self) -> bool {
-        self.numbers[1..]
+        self.numbers.data[1..self.numbers.counter]
             .iter()
-            .fold(self.numbers[0], |sum, i| usize::max(sum + i, sum * i))
+            .fold(self.numbers.data[0], |sum, i| usize::max(sum + i, sum * i))
             >= self.target
     }
 }
@@ -30,7 +47,7 @@ impl Iterator for LineParser<'_> {
     fn next(&mut self) -> Option<Self::Item> {
         let mut n = 0;
         let mut target = 0;
-        let mut v = Vec::with_capacity(10);
+        let mut v = SmallVec::<usize, 20>::default();
 
         while self.idx < self.content.len() {
             let byte = unsafe { *self.content.as_bytes().get_unchecked(self.idx) };
@@ -97,7 +114,7 @@ pub fn part1(content: &str) -> usize {
         if !row.maybe_possible_pt1() {
             continue;
         }
-        if unsafe { is_valid_pt1(row.target, 0, &row.numbers) } {
+        if unsafe { is_valid_pt1(row.target, 0, &row.numbers.data[0..row.numbers.counter]) } {
             total += row.target
         }
     }
@@ -110,7 +127,7 @@ pub fn part2(content: &str) -> usize {
 
     rows.iter()
         .map(|row| {
-            if unsafe { is_valid_pt2(row.target, 0, &row.numbers) } {
+            if unsafe { is_valid_pt2(row.target, 0, &row.numbers.data[0..row.numbers.counter]) } {
                 row.target
             } else {
                 0
