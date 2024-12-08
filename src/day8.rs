@@ -11,14 +11,14 @@ const NEWLINE_DIM: isize = DIM_ISIZE + 1;
 
 #[derive(Clone, Copy)]
 struct AntennaSet {
-    locations: [Point; 10],
+    locations: [Point; 4],
     count: usize,
 }
 
 impl Default for AntennaSet {
     fn default() -> Self {
         AntennaSet {
-            locations: [Point::default(); 10],
+            locations: [Point::default(); 4],
             count: 0,
         }
     }

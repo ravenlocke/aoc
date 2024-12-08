@@ -1,3 +1,6 @@
+// TODO: Write to run in reverse (start from the target and iterate backwards through the list).
+// TODO: Write to not use recursion (e.g., have two stacks, pop from one to the other).
+
 struct SmallVec<T, const M: usize> {
     data: [T; M],
     counter: usize,
