@@ -117,6 +117,8 @@ impl<const M: usize, const N: isize> Display for Grid<M, N> {
 
 impl<const M: usize, const N: isize> Grid<M, N> {
     fn new() -> Grid<M, N> {
+        // Under normal circumstances, this would be checked. However, it's faster not to check.
+        debug_assert!(M == N as usize);
         Grid {
             grid: [[false; M]; M],
         }
