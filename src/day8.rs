@@ -158,8 +158,8 @@ pub fn part1(content: &str) -> usize {
     let mut grid = Grid::<DIM_USIZE, DIM_ISIZE>::new();
 
     antennas.iter().for_each(|antenna_set| {
-        for a in 0..antenna_set.count {
-            for b in a + 1..antenna_set.count {
+        (0..antenna_set.count).for_each(|a| {
+            (a + 1..antenna_set.count).for_each(|b| {
                 let point_a = unsafe { *antenna_set.locations.get_unchecked(b) };
                 let point_b = unsafe { *antenna_set.locations.get_unchecked(a) };
 
@@ -182,8 +182,8 @@ pub fn part1(content: &str) -> usize {
                 if point_b - diff == point_a - (diff * 2) && grid.contains(point_b - diff) {
                     unsafe { grid.set_unchecked(point_b - diff) };
                 }
-            }
-        }
+            })
+        })
     });
     grid.count_antinodes()
 }
@@ -206,8 +206,8 @@ pub fn part2(content: &str) -> usize {
     let mut grid = Grid::<DIM_USIZE, DIM_ISIZE>::new();
 
     antennas.iter().for_each(|antenna_set| {
-        for a in 0..antenna_set.count {
-            for b in a + 1..antenna_set.count {
+        (0..antenna_set.count).for_each(|a| {
+            (a + 1..antenna_set.count).for_each(|b| {
                 let point_a = unsafe { *antenna_set.locations.get_unchecked(b) };
                 let point_b = unsafe { *antenna_set.locations.get_unchecked(a) };
                 let diff: Delta = point_b - point_a;
@@ -236,8 +236,8 @@ pub fn part2(content: &str) -> usize {
                     unsafe { grid.set_unchecked(loc) };
                     loc += diff
                 }
-            }
-        }
+            })
+        })
     });
     grid.count_antinodes()
 }
