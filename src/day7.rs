@@ -1,15 +1,18 @@
 struct SmallVec<T, const M: usize> {
-    data: [T;M],
-    counter: usize
+    data: [T; M],
+    counter: usize,
 }
 
-impl <T: Default + Copy, const M: usize> Default for SmallVec<T, M> {
+impl<T: Default + Copy, const M: usize> Default for SmallVec<T, M> {
     fn default() -> Self {
-        SmallVec{data: [T::default(); M], counter:0}
+        SmallVec {
+            data: [T::default(); M],
+            counter: 0,
+        }
     }
 }
 
-impl <T, const M: usize> SmallVec<T, M> {
+impl<T, const M: usize> SmallVec<T, M> {
     fn push(&mut self, item: T) {
         self.data[self.counter] = item;
         self.counter += 1;

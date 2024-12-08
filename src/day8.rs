@@ -211,7 +211,7 @@ pub fn part2(content: &str) -> usize {
                 let point_a = unsafe { *antenna_set.locations.get_unchecked(b) };
                 let point_b = unsafe { *antenna_set.locations.get_unchecked(a) };
                 let diff: Delta = point_b - point_a;
-                
+
                 unsafe {
                     grid.set_unchecked(point_a);
                     grid.set_unchecked(point_b);
@@ -220,7 +220,7 @@ pub fn part2(content: &str) -> usize {
                 // In theory, it should be possible for points to be at non-integer multiples of the vector between the
                 // two points. However, this doesn't seem to be the case in practice, and not checking yields a speed
                 // up, so... 🙃
-                // 
+                //
                 // Example of a potentially valid case we don't check for.
                 // A..
                 // .#.
@@ -228,7 +228,7 @@ pub fn part2(content: &str) -> usize {
                 let mut loc = point_a - diff;
                 while grid.contains(loc) {
                     unsafe { grid.set_unchecked(loc) };
-                    loc -= diff;                    
+                    loc -= diff;
                 }
 
                 loc = point_b + diff;
@@ -239,8 +239,8 @@ pub fn part2(content: &str) -> usize {
             }
         }
     });
-    grid.count_antinodes()}
-
+    grid.count_antinodes()
+}
 
 #[cfg(test)]
 mod tests {
