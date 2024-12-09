@@ -27,15 +27,20 @@ pub fn part1(content: &str) -> usize {
 
     loop {
         if fwd_idx % 2 == 0 {
-            total += (fwd_idx / 2) * counter;
-            input[fwd_idx] -= 1;
+            let mul = fwd_idx / 2 as usize;
+            let next_counter = counter + input[fwd_idx] as usize;
+            input[fwd_idx] = 0;
+            total += (counter..next_counter).map(|i| i * mul).sum::<usize>();
+            counter = next_counter;
         } else {
-            total += (rev_idx / 2) * counter;
-            input[rev_idx] -= 1;
-            input[fwd_idx] -= 1;
+            let min = u8::min(input[fwd_idx], input[rev_idx]);
+            let next_counter = counter + min as usize;
+            total += (counter..next_counter).map(|i| i* (rev_idx / 2)).sum::<usize>();
+            input[rev_idx] -= min;
+            input[fwd_idx] -= min;
+            counter += min as usize;
         }
 
-        counter += 1;
         if counter == count {
             return total;
         }
