@@ -57,31 +57,32 @@ pub fn part2(content: &str) -> usize {
     let mut counter = 0;
     let mut total = 0;
 
-    (0..N).for_each(|i| {
+    (0..N).for_each(|i| unsafe {
+        let ival = *input.get_unchecked(i);
         if i % 2 == 0 {
-            if input[i] == 0 {
-                counter += original_input[i] as usize
+            if ival == 0 {
+                counter += *original_input.get_unchecked(i) as usize
             } else {
-                (0..input[i]).for_each(|_| {
+                (0..ival).for_each(|_| {
                     total += counter * (i / 2) as usize;
                     counter += 1
                 });
             }
         } else {
-            let mut capacity = input[i];
+            let mut capacity = ival;
             let mut capacity_usize = capacity as usize;
 
             // While we have capcity to fill and haven't finished checking positions that may
             // have the capacity to move here.
-            while capacity != 0 && arr[capacity_usize] > i + 2 {
+            while capacity != 0 && *arr.get_unchecked(capacity_usize) > i + 2 {
                 // Decrement
-                arr[capacity_usize] -= 2;
-                let capacity_move = &mut input[arr[capacity_usize]];
+                *arr.get_unchecked_mut(capacity_usize) -= 2;
+                let capacity_move = input.get_unchecked_mut(*arr.get_unchecked(capacity_usize));
                 // If that position can fill some or all of the capacity.
                 if *capacity_move <= capacity {
                     // Update total and counter for it
                     (0..*capacity_move).for_each(|_| {
-                        total += counter * (arr[capacity_usize] / 2) as usize;
+                        total += counter * (arr.get_unchecked(capacity_usize) / 2) as usize;
                         counter += 1
                     });
                     // Mark it as moved and update capacity for the space being filled.
