@@ -29,29 +29,24 @@ pub fn part1(content: &str) -> usize {
         if fwd_idx % 2 == 0 {
             total += (fwd_idx / 2) * counter;
             input[fwd_idx] -= 1;
-            while input[fwd_idx] == 0 {
-                fwd_idx += 1;
-            }
         } else {
-            while input[rev_idx] == 0 {
-                rev_idx -= 2;
-            }
             total += (rev_idx / 2) * counter;
             input[rev_idx] -= 1;
             input[fwd_idx] -= 1;
-
-            while input[fwd_idx] == 0 && counter != count {
-                fwd_idx += 1;
-            }
         }
 
         counter += 1;
         if counter == count {
-            break;
+            return total;
+        }
+
+        while input[rev_idx] == 0 {
+            rev_idx -= 2;
+        }
+        while input[fwd_idx] == 0 {
+            fwd_idx += 1;
         }
     }
-
-    total
 }
 
 pub fn part2(content: &str) -> usize {
