@@ -81,16 +81,17 @@ pub fn part2(content: &str) -> usize {
             while capacity != 0 && arr[capacity_usize] > i + 2 {
                 // Decrement
                 arr[capacity_usize] -= 2;
+                let capacity_move = &mut input[arr[capacity_usize]];
                 // If that position can fill some or all of the capacity.
-                if input[arr[capacity_usize]] <= capacity {
+                if *capacity_move <= capacity {
                     // Update total and counter for it
-                    (0..input[arr[capacity_usize]]).for_each(|_| {
+                    (0..*capacity_move).for_each(|_| {
                         total += counter * (arr[capacity_usize] / 2) as usize;
                         counter += 1
                     });
                     // Mark it as moved and update capacity for the space being filled.
-                    capacity -= input[arr[capacity_usize]];
-                    input[arr[capacity_usize]] = 0;
+                    capacity -= *capacity_move;
+                    *capacity_move = 0;
                     capacity_usize = capacity as usize;
                 }
             }
