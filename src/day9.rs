@@ -35,7 +35,9 @@ pub fn part1(content: &str) -> usize {
         } else {
             let min = u8::min(input[fwd_idx], input[rev_idx]);
             let next_counter = counter + min as usize;
-            total += (counter..next_counter).map(|i| i* (rev_idx / 2)).sum::<usize>();
+            total += (counter..next_counter)
+                .map(|i| i * (rev_idx / 2))
+                .sum::<usize>();
             input[rev_idx] -= min;
             input[fwd_idx] -= min;
             counter += min as usize;
