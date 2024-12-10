@@ -1,11 +1,10 @@
-// TODO - Rework to reduce number of allocations.
-
-use std::ops::Index;
+use std::{ops::Index, sync::LockResult, thread::LocalKey};
 
 use itertools::Itertools;
-use rustc_hash::FxHashMap;
+use rustc_hash::{FxBuildHasher, FxHashMap};
 
 const MAX_N: usize = 100;
+const MAX_W: usize = MAX_N * MAX_N / 5;
 
 #[derive(Clone, Copy)]
 struct SmallVec<T, const M: usize> {
@@ -54,19 +53,24 @@ fn parse_input(
     content: &str,
 ) -> (
     SmallVec<SmallVec<u8, MAX_N>, MAX_N>,
-    FxHashMap<u8, Vec<(usize, usize)>>,
+    SmallVec<(usize, usize), MAX_W>,
 ) {
     let mut grid = SmallVec::default();
-    let mut locations = FxHashMap::<u8, Vec<(usize, usize)>>::default();
+    let mut nines = SmallVec::<(usize, usize), MAX_W>::default();
 
     let mut row = SmallVec::<u8, MAX_N>::default();
     let (mut i, mut j) = (0, 0);
 
     content.bytes().for_each(|byte| match byte {
+        b'9' => {
+            let val = byte - b'0';
+            row.push(val);
+            nines.push((i, j));
+            j += 1;
+        }
         b'0'..=b'9' => {
             let val = byte - b'0';
             row.push(val);
-            locations.entry(val).or_insert(Vec::new()).push((i, j));
             j += 1;
         }
         b'\n' => {
@@ -80,120 +84,104 @@ fn parse_input(
         }
     });
 
-    (grid, locations)
+    if row.len() != 0 {
+        grid.push(row);
+    }
+
+    (grid, nines)
 }
 
 pub fn part1(content: &str) -> usize {
-    let (grid, locations) = parse_input(content);
+    let (grid, nines) = parse_input(content);
     let n_rows: usize = grid.len();
     let n_cols: usize = grid[0].len();
+    let mut reachable_endpoints = FxHashMap::default();
 
-    let mut reachable_endpoints = FxHashMap::<(usize, usize), Vec<(usize, usize)>>::default();
-
-    for location in locations.get(&9).expect("TODO") {
-        reachable_endpoints.insert(*location, vec![*location]);
+    for location in &nines {
+        reachable_endpoints.insert(*location, vec![location.0 * n_cols + location.1]);
     }
 
     for idx in (1..10).rev() {
-        for loc in locations.get(&idx).unwrap() {
+        let mut next_reachable_endpoints = FxHashMap::default();
+        for (loc, endpoints) in reachable_endpoints.iter() {
             let (i, j) = loc;
 
-            let endpoints = reachable_endpoints.get(loc).unwrap_or(&vec![]).clone();
-
             if *i > 0 && grid[i - 1][*j] == idx - 1 {
-                reachable_endpoints
+                next_reachable_endpoints
                     .entry((i - 1, *j))
                     .or_insert(vec![])
-                    .extend(&endpoints);
+                    .extend(endpoints);
             }
 
             if *i < n_cols - 1 && grid[i + 1][*j] == idx - 1 {
-                reachable_endpoints
+                next_reachable_endpoints
                     .entry((i + 1, *j))
                     .or_insert(vec![])
-                    .extend(&endpoints);
+                    .extend(endpoints);
             }
 
             if *j > 0 && grid[*i][j - 1] == idx - 1 {
-                reachable_endpoints
+                next_reachable_endpoints
                     .entry((*i, j - 1))
                     .or_insert(vec![])
-                    .extend(&endpoints);
+                    .extend(endpoints);
             }
 
             if *j < n_rows - 1 && grid[*i][j + 1] == idx - 1 {
-                reachable_endpoints
+                next_reachable_endpoints
                     .entry((*i, j + 1))
                     .or_insert(vec![])
-                    .extend(&endpoints);
+                    .extend(endpoints);
             }
         }
+
+        reachable_endpoints = next_reachable_endpoints;
     }
 
     let mut total = 0;
-    for location in locations.get(&0).expect("") {
-        if let Some(endpoints) = reachable_endpoints.get(location) {
-            total += endpoints.iter().unique().count()
-        }
+    for endpoints in reachable_endpoints.values() {
+        total += endpoints.iter().unique().count()
     }
 
     total
 }
 
 pub fn part2(content: &str) -> usize {
-    let (grid, locations) = parse_input(content);
+    let (grid, nines) = parse_input(content);
     let n_rows: usize = grid.len();
     let n_cols: usize = grid[0].len();
-    let mut reachable_endpoints = FxHashMap::<(usize, usize), Vec<(usize, usize)>>::default();
+    let mut reachable_endpoints = FxHashMap::default();
 
-    for location in locations.get(&9).expect("TODO") {
-        reachable_endpoints.insert(*location, vec![*location]);
+    for location in &nines {
+        reachable_endpoints.insert(*location, 1);
     }
 
     for idx in (1..10).rev() {
-        for loc in locations.get(&idx).unwrap() {
+        let mut next_reachable_endpoints = FxHashMap::default();
+        for (loc, endpoints) in reachable_endpoints.iter() {
             let (i, j) = loc;
 
-            let endpoints = reachable_endpoints.get(loc).unwrap_or(&vec![]).clone();
-
             if *i > 0 && grid[i - 1][*j] == idx - 1 {
-                reachable_endpoints
-                    .entry((i - 1, *j))
-                    .or_insert(vec![])
-                    .extend(&endpoints);
+                *next_reachable_endpoints.entry((i - 1, *j)).or_insert(0) += endpoints;
             }
 
             if *i < n_cols - 1 && grid[i + 1][*j] == idx - 1 {
-                reachable_endpoints
-                    .entry((i + 1, *j))
-                    .or_insert(vec![])
-                    .extend(&endpoints);
+                *next_reachable_endpoints.entry((i + 1, *j)).or_insert(0) += endpoints;
             }
 
             if *j > 0 && grid[*i][j - 1] == idx - 1 {
-                reachable_endpoints
-                    .entry((*i, j - 1))
-                    .or_insert(vec![])
-                    .extend(&endpoints);
+                *next_reachable_endpoints.entry((*i, j - 1)).or_insert(0) += endpoints;
             }
 
             if *j < n_rows - 1 && grid[*i][j + 1] == idx - 1 {
-                reachable_endpoints
-                    .entry((*i, j + 1))
-                    .or_insert(vec![])
-                    .extend(&endpoints);
+                *next_reachable_endpoints.entry((*i, j + 1)).or_insert(0) += endpoints;
             }
         }
+
+        reachable_endpoints = next_reachable_endpoints;
     }
 
-    let mut total = 0;
-    for location in locations.get(&0).expect("") {
-        if let Some(endpoints) = reachable_endpoints.get(location) {
-            total += endpoints.iter().count()
-        }
-    }
-
-    total
+    reachable_endpoints.values().sum()
 }
 #[cfg(test)]
 mod tests {
