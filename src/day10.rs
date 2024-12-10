@@ -1,13 +1,65 @@
 // TODO - Rework to reduce number of allocations.
 
+use std::ops::Index;
+
 use itertools::Itertools;
 use rustc_hash::FxHashMap;
 
-fn parse_input(content: &str) -> (Vec<Vec<u8>>, FxHashMap<u8, Vec<(usize, usize)>>) {
-    let mut grid = Vec::new();
+const MAX_N: usize = 100;
+
+#[derive(Clone, Copy)]
+struct SmallVec<T, const M: usize> {
+    data: [T; M],
+    counter: usize,
+}
+
+impl<T: Default + Copy, const M: usize> Default for SmallVec<T, M> {
+    fn default() -> Self {
+        SmallVec {
+            data: [T::default(); M],
+            counter: 0,
+        }
+    }
+}
+
+impl<T, const M: usize> SmallVec<T, M> {
+    fn push(&mut self, item: T) {
+        self.data[self.counter] = item;
+        self.counter += 1;
+    }
+
+    fn len(&self) -> usize {
+        self.counter
+    }
+}
+
+impl<'a, T, const M: usize> IntoIterator for &'a SmallVec<T, M> {
+    type Item = &'a T;
+    type IntoIter = std::slice::Iter<'a, T>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.data[0..self.counter].iter()
+    }
+}
+
+impl<T, const M: usize> Index<usize> for SmallVec<T, M> {
+    type Output = T;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        &self.data[index]
+    }
+}
+
+fn parse_input(
+    content: &str,
+) -> (
+    SmallVec<SmallVec<u8, MAX_N>, MAX_N>,
+    FxHashMap<u8, Vec<(usize, usize)>>,
+) {
+    let mut grid = SmallVec::default();
     let mut locations = FxHashMap::<u8, Vec<(usize, usize)>>::default();
 
-    let mut row = Vec::new();
+    let mut row = SmallVec::<u8, MAX_N>::default();
     let (mut i, mut j) = (0, 0);
 
     content.bytes().for_each(|byte| match byte {
@@ -19,7 +71,7 @@ fn parse_input(content: &str) -> (Vec<Vec<u8>>, FxHashMap<u8, Vec<(usize, usize)
         }
         b'\n' => {
             grid.push(row.clone());
-            row = Vec::with_capacity(row.len());
+            row = SmallVec::<u8, 100>::default();
             i += 1;
             j = 0;
         }
