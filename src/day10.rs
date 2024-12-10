@@ -3,19 +3,29 @@
 use itertools::Itertools;
 use rustc_hash::FxHashMap;
 
-const N: usize = 57;
-const M: usize = N;
-
-fn parse_input(content: &str) -> ([[u8; M]; N], FxHashMap<u8, Vec<(usize, usize)>>) {
-    let mut grid = [[0; M]; N];
+fn parse_input(content: &str) -> (Vec<Vec<u8>>, FxHashMap<u8, Vec<(usize, usize)>>) {
+    let mut grid = Vec::new();
     let mut locations = FxHashMap::<u8, Vec<(usize, usize)>>::default();
 
-    (0..N).for_each(|i| {
-        (0..M).for_each(|j| {
-            let val = content.as_bytes()[i * (N + 1) + j] - b'0';
-            grid[i][j] = val;
+    let mut row = Vec::new();
+    let (mut i, mut j) = (0, 0);
+
+    content.bytes().for_each(|byte| match byte {
+        b'0'..=b'9' => {
+            let val = byte - b'0';
+            row.push(val);
             locations.entry(val).or_insert(Vec::new()).push((i, j));
-        });
+            j += 1;
+        }
+        b'\n' => {
+            grid.push(row.clone());
+            row = Vec::with_capacity(row.len());
+            i += 1;
+            j = 0;
+        }
+        _ => {
+            unreachable!()
+        }
     });
 
     (grid, locations)
@@ -23,6 +33,9 @@ fn parse_input(content: &str) -> ([[u8; M]; N], FxHashMap<u8, Vec<(usize, usize)
 
 pub fn part1(content: &str) -> usize {
     let (grid, locations) = parse_input(content);
+    let n_rows: usize = grid.len();
+    let n_cols: usize = grid[0].len();
+
     let mut reachable_endpoints = FxHashMap::<(usize, usize), Vec<(usize, usize)>>::default();
 
     for location in locations.get(&9).expect("TODO") {
@@ -42,7 +55,7 @@ pub fn part1(content: &str) -> usize {
                     .extend(&endpoints);
             }
 
-            if *i < M - 1 && grid[i + 1][*j] == idx - 1 {
+            if *i < n_cols - 1 && grid[i + 1][*j] == idx - 1 {
                 reachable_endpoints
                     .entry((i + 1, *j))
                     .or_insert(vec![])
@@ -56,7 +69,7 @@ pub fn part1(content: &str) -> usize {
                     .extend(&endpoints);
             }
 
-            if *j < N - 1 && grid[*i][j + 1] == idx - 1 {
+            if *j < n_rows - 1 && grid[*i][j + 1] == idx - 1 {
                 reachable_endpoints
                     .entry((*i, j + 1))
                     .or_insert(vec![])
@@ -77,6 +90,8 @@ pub fn part1(content: &str) -> usize {
 
 pub fn part2(content: &str) -> usize {
     let (grid, locations) = parse_input(content);
+    let n_rows: usize = grid.len();
+    let n_cols: usize = grid[0].len();
     let mut reachable_endpoints = FxHashMap::<(usize, usize), Vec<(usize, usize)>>::default();
 
     for location in locations.get(&9).expect("TODO") {
@@ -96,7 +111,7 @@ pub fn part2(content: &str) -> usize {
                     .extend(&endpoints);
             }
 
-            if *i < M - 1 && grid[i + 1][*j] == idx - 1 {
+            if *i < n_cols - 1 && grid[i + 1][*j] == idx - 1 {
                 reachable_endpoints
                     .entry((i + 1, *j))
                     .or_insert(vec![])
@@ -110,7 +125,7 @@ pub fn part2(content: &str) -> usize {
                     .extend(&endpoints);
             }
 
-            if *j < N - 1 && grid[*i][j + 1] == idx - 1 {
+            if *j < n_rows - 1 && grid[*i][j + 1] == idx - 1 {
                 reachable_endpoints
                     .entry((*i, j + 1))
                     .or_insert(vec![])

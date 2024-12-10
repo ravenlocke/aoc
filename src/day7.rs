@@ -22,6 +22,16 @@ impl<T, const M: usize> SmallVec<T, M> {
     }
 }
 
+impl <'a, T, const M: usize> IntoIterator for &'a SmallVec<T, M> {
+    type Item = &'a T;
+    type IntoIter = std::slice::Iter<'a, T>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.data[0..self.counter].iter()
+    }
+}
+
+
 struct ParsedRow {
     target: usize,
     numbers: SmallVec<usize, 20>,
