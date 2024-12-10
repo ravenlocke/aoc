@@ -1,7 +1,7 @@
 use std::ops::Index;
 
 use itertools::Itertools;
-use rustc_hash::FxHashMap;
+use rustc_hash::{FxBuildHasher, FxHashMap};
 
 const MAX_N: usize = 100;
 const MAX_W: usize = MAX_N * MAX_N / 5;
@@ -96,14 +96,15 @@ pub fn part1(content: &str) -> usize {
     let (grid, nines) = parse_input(content);
     let n_rows: usize = grid.len();
     let n_cols: usize = grid[0].len();
-    let mut reachable_endpoints = FxHashMap::default();
+    let mut reachable_endpoints = FxHashMap::with_capacity_and_hasher(1_500, FxBuildHasher);
 
     for location in &nines {
         reachable_endpoints.insert(*location, vec![location.0 * n_cols + location.1]);
     }
 
     for idx in (1..10).rev() {
-        let mut next_reachable_endpoints = FxHashMap::default();
+        let mut next_reachable_endpoints =
+            FxHashMap::with_capacity_and_hasher(1_500, FxBuildHasher);
         for (loc, endpoints) in reachable_endpoints.iter() {
             let (i, j) = loc;
 
