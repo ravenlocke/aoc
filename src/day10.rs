@@ -1,7 +1,7 @@
-use std::{ops::Index, sync::LockResult, thread::LocalKey};
+use std::ops::Index;
 
 use itertools::Itertools;
-use rustc_hash::{FxBuildHasher, FxHashMap};
+use rustc_hash::FxHashMap;
 
 const MAX_N: usize = 100;
 const MAX_W: usize = MAX_N * MAX_N / 5;
@@ -84,6 +84,7 @@ fn parse_input(
         }
     });
 
+    // Special case in case there's no newline at EOF.
     if row.len() != 0 {
         grid.push(row);
     }
