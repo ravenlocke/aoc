@@ -45,7 +45,7 @@ impl<T, const M: usize> Index<usize> for SmallVec<T, M> {
     type Output = T;
 
     fn index(&self, index: usize) -> &Self::Output {
-        &self.data[index]
+        unsafe { &self.data.get_unchecked(index) }
     }
 }
 
@@ -110,28 +110,28 @@ pub fn part1(content: &str) -> usize {
             if *i > 0 && grid[i - 1][*j] == idx - 1 {
                 next_reachable_endpoints
                     .entry((i - 1, *j))
-                    .or_insert(vec![])
+                    .or_insert(Vec::with_capacity(16))
                     .extend(endpoints);
             }
 
             if *i < n_cols - 1 && grid[i + 1][*j] == idx - 1 {
                 next_reachable_endpoints
                     .entry((i + 1, *j))
-                    .or_insert(vec![])
+                    .or_insert(Vec::with_capacity(16))
                     .extend(endpoints);
             }
 
             if *j > 0 && grid[*i][j - 1] == idx - 1 {
                 next_reachable_endpoints
                     .entry((*i, j - 1))
-                    .or_insert(vec![])
+                    .or_insert(Vec::with_capacity(16))
                     .extend(endpoints);
             }
 
             if *j < n_rows - 1 && grid[*i][j + 1] == idx - 1 {
                 next_reachable_endpoints
                     .entry((*i, j + 1))
-                    .or_insert(vec![])
+                    .or_insert(Vec::with_capacity(16))
                     .extend(endpoints);
             }
         }
