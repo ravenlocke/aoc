@@ -137,12 +137,14 @@ pub fn part2(content: &str) -> usize {
             }
         }
 
-        (reachable_endpoints, next_reachable_endpoints) = (next_reachable_endpoints, reachable_endpoints);
+        (reachable_endpoints, next_reachable_endpoints) =
+            (next_reachable_endpoints, reachable_endpoints);
         next_reachable_endpoints.drain();
     }
 
     reachable_endpoints.values().sum()
 }
+
 #[cfg(test)]
 mod tests {
     use super::*;
