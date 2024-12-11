@@ -1,53 +1,10 @@
-use std::ops::Index;
-
 use itertools::Itertools;
 use rustc_hash::{FxBuildHasher, FxHashMap};
 
 const MAX_N: usize = 100;
 const MAX_W: usize = MAX_N * MAX_N / 5;
 
-#[derive(Clone, Copy)]
-struct SmallVec<T, const M: usize> {
-    data: [T; M],
-    counter: usize,
-}
-
-impl<T: Default + Copy, const M: usize> Default for SmallVec<T, M> {
-    fn default() -> Self {
-        SmallVec {
-            data: [T::default(); M],
-            counter: 0,
-        }
-    }
-}
-
-impl<T, const M: usize> SmallVec<T, M> {
-    fn push(&mut self, item: T) {
-        self.data[self.counter] = item;
-        self.counter += 1;
-    }
-
-    fn len(&self) -> usize {
-        self.counter
-    }
-}
-
-impl<'a, T, const M: usize> IntoIterator for &'a SmallVec<T, M> {
-    type Item = &'a T;
-    type IntoIter = std::slice::Iter<'a, T>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        self.data[0..self.counter].iter()
-    }
-}
-
-impl<T, const M: usize> Index<usize> for SmallVec<T, M> {
-    type Output = T;
-
-    fn index(&self, index: usize) -> &Self::Output {
-        unsafe { &self.data.get_unchecked(index) }
-    }
-}
+use crate::utils::SmallVec;
 
 fn parse_input(
     content: &str,
@@ -68,7 +25,7 @@ fn parse_input(
             nines.push((i, j));
             j += 1;
         }
-        b'0'..=b'9' => {
+        b'0'..b'9' => {
             let val = byte - b'0';
             row.push(val);
             j += 1;
@@ -153,13 +110,13 @@ pub fn part2(content: &str) -> usize {
     let n_rows: usize = grid.len();
     let n_cols: usize = grid[0].len();
     let mut reachable_endpoints = FxHashMap::default();
+    let mut next_reachable_endpoints = FxHashMap::default();
 
     for location in &nines {
         reachable_endpoints.insert(*location, 1);
     }
 
     for idx in (1..10).rev() {
-        let mut next_reachable_endpoints = FxHashMap::default();
         for (loc, endpoints) in reachable_endpoints.iter() {
             let (i, j) = loc;
 
@@ -180,7 +137,8 @@ pub fn part2(content: &str) -> usize {
             }
         }
 
-        reachable_endpoints = next_reachable_endpoints;
+        (reachable_endpoints, next_reachable_endpoints) = (next_reachable_endpoints, reachable_endpoints);
+        next_reachable_endpoints.drain();
     }
 
     reachable_endpoints.values().sum()
