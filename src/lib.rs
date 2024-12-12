@@ -2,6 +2,8 @@ pub mod day1;
 pub mod day10;
 pub mod day11;
 mod day11_luts;
+pub mod day12;
+mod day12_luts;
 pub mod day2;
 pub mod day3;
 pub mod day4;
