@@ -1,63 +1,63 @@
-use crate::utils::SmallVec;
 use crate::day12_luts::CORNER_LUT;
+use crate::utils::SmallVec;
 
 const N: usize = 140;
 const M: usize = N + 2;
 
+fn check_visit(
+    vec: &mut SmallVec<(usize, usize), 1_000>,
+    visited: &mut [[bool; M]],
+    i: usize,
+    j: usize,
+) {
+    if !visited[i][j] {
+        // Mark it to visit and add it to places to check.
+        visited[i][j - 1] = true;
+        vec.push((i, j - 1));
+    }
+}
+
 fn expand_pt2(i: usize, j: usize, grid: &[[u8; M]; M], visited: &mut [[bool; M]; M]) -> usize {
-    // Sum of internal angles = (n - 2) * 180
     let mut area = 0;
-    let mut n_sizes = 0;
+    let mut n_sides = 0;
     let mut vec = SmallVec::<(usize, usize), 1_000>::default();
     vec.push((i, j));
     visited[i][j] = true;
 
     while vec.len() != 0 {
-        let mut borders = [false, false, false, false];
-
         area += 1;
 
         let (i, j) = vec.pop();
+        let val = grid[i][j];
 
-        if grid[i][j] != grid[i][j - 1] {
-            // Borders a different field, update perimiter.
-            borders[0] = true;
-        } else {
+        if val == grid[i][j - 1] {
             if !visited[i][j - 1] {
-                // Mark it to visit and add it to places to check.
                 visited[i][j - 1] = true;
                 vec.push((i, j - 1));
             }
         }
 
-        if grid[i][j] != grid[i][j + 1] {
-            borders[2] = true;
-        } else {
+        if val == grid[i][j + 1] {
             if !visited[i][j + 1] {
                 visited[i][j + 1] = true;
                 vec.push((i, j + 1));
             }
         }
 
-        if grid[i][j] != grid[i - 1][j] {
-            borders[1] = true
-        } else {
+        if val == grid[i - 1][j] {
             if !visited[i - 1][j] {
                 visited[i - 1][j] = true;
                 vec.push((i - 1, j));
             }
         }
 
-        if grid[i][j] != grid[i + 1][j] {
-            borders[3] = true
-        } else {
+        if val == grid[i + 1][j] {
             if !visited[i + 1][j] {
                 visited[i + 1][j] = true;
                 vec.push((i + 1, j));
             }
         }
 
-        let val = grid[i][j];
         let n = 0usize
             | (128 * (grid[i - 1][j - 1] == val) as usize)
             | (64 * (grid[i - 1][j] == val) as usize)
@@ -68,10 +68,10 @@ fn expand_pt2(i: usize, j: usize, grid: &[[u8; M]; M], visited: &mut [[bool; M];
             | (2 * (grid[i + 1][j] == val) as usize)
             | (1 * (grid[i + 1][j + 1] == val) as usize);
 
-        n_sizes += CORNER_LUT[n]
+        n_sides += CORNER_LUT[n]
     }
 
-    return area * n_sizes;
+    return area * n_sides;
 }
 
 fn expand(i: usize, j: usize, grid: &[[u8; M]; M], visited: &mut [[bool; M]; M]) -> usize {
