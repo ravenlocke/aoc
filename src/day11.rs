@@ -5,17 +5,24 @@ unsafe fn solve_for_n_memoised(n_iters: usize, content: &str, lookups: &[[usize;
     let mut current = FxHashMap::default();
 
     let mut n = 0;
+    let mut matching = false;
+
     for byte in content.bytes() {
         match byte {
             b'0'..b':' => {
+                matching = true;
                 n *= 10;
                 n += (byte - 48) as usize
             }
             _ => {
+                matching = false;
                 *current.entry(n).or_insert(0) += 1;
                 n = 0;
             }
         }
+    }
+    if matching {
+        *current.entry(n).or_insert(0) += 1;
     }
 
     let mut next = FxHashMap::default();
