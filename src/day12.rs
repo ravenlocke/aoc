@@ -4,18 +4,6 @@ use crate::utils::SmallVec;
 const N: usize = 140;
 const M: usize = N + 2;
 
-fn check_visit(
-    vec: &mut SmallVec<(usize, usize), 1_000>,
-    visited: &mut [[bool; M]],
-    i: usize,
-    j: usize,
-) {
-    if !visited[i][j] {
-        // Mark it to visit and add it to places to check.
-        visited[i][j - 1] = true;
-        vec.push((i, j - 1));
-    }
-}
 
 fn expand_pt2(i: usize, j: usize, grid: &[[u8; M]; M], visited: &mut [[bool; M]; M]) -> usize {
     let mut area = 0;
