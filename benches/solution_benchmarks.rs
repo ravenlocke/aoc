@@ -1,7 +1,7 @@
 use criterion::{criterion_group, criterion_main, Criterion};
 use std::hint::black_box;
 
-use aoc_2024::{day1, day10, day11, day12, day2, day3, day4, day5, day6, day7, day8, day9};
+use aoc_2024::{day1, day10, day11, day12, day13, day2, day3, day4, day5, day6, day7, day8, day9};
 
 fn criterion_benchmark(c: &mut Criterion) {
     let contents: &str = include_str!("../inputs/day01.txt");
@@ -98,6 +98,14 @@ fn criterion_benchmark(c: &mut Criterion) {
     });
     c.bench_function("Day 12, Part 2", |b| {
         b.iter(|| day12::part2(black_box(contents)))
+    });
+
+    let contents: &str = include_str!("../inputs/day13.txt");
+    c.bench_function("Day 13, Part 1", |b| {
+        b.iter(|| day13::part1(black_box(contents)))
+    });
+    c.bench_function("Day 13, Part 2", |b| {
+        b.iter(|| day13::part2(black_box(contents)))
     });
 }
 

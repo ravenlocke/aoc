@@ -4,7 +4,6 @@ use crate::utils::SmallVec;
 const N: usize = 140;
 const M: usize = N + 2;
 
-
 fn expand_pt2(i: usize, j: usize, grid: &[[u8; M]; M], visited: &mut [[bool; M]; M]) -> usize {
     let mut area = 0;
     let mut n_sides = 0;
