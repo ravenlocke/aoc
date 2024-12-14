@@ -1,15 +1,26 @@
-use std::{isize, iter};
-
 const M: isize = 103;
 const N: isize = 101;
-const K: isize = 100;
 
 const MID_M: isize = M / 2;
 const MID_N: isize = N / 2;
 
+const N_POSITIONS: f64 = 500.;
 const MAX_STATES: isize = M * N;
 
+fn calculate_variance(i: impl Iterator<Item = isize>) -> f64 {
+    let mut s = 0f64;
+    let mut s2 = 0f64;
+
+    i.into_iter().for_each(|i| {
+        s += i as f64;
+        s2 += (i as f64) * (i as f64);
+    });
+
+    (s2 - (s * s) / N_POSITIONS) / N_POSITIONS
+}
+
 pub fn part1(content: &str) -> isize {
+    const N_ITERS: isize = 100;
     let mut digits = [0, 0, 0, 0];
     let mut pointer = 0usize;
     let mut n = 0;
@@ -29,8 +40,8 @@ pub fn part1(content: &str) -> isize {
             digits[pointer] = n;
 
             let (col, row) = (
-                (digits[0] + K * digits[2]).rem_euclid(N),
-                (digits[1] + K * digits[3]).rem_euclid(M),
+                (digits[0] + N_ITERS * digits[2]).rem_euclid(N),
+                (digits[1] + N_ITERS * digits[3]).rem_euclid(M),
             );
 
             if row > MID_M {
@@ -80,10 +91,8 @@ pub fn part2(content: &str) -> isize {
     let mut n = 0;
     let mut is_neg = false;
 
-    let mut states = Vec::with_capacity(MAX_STATES as usize);
-    let mut deltas = Vec::with_capacity(MAX_STATES as usize);
-    let mut closest_dist = usize::MAX;
-    let mut closest_iter = isize::MAX;
+    let mut states = Vec::with_capacity(N_POSITIONS as usize);
+    let mut deltas = Vec::with_capacity(N_POSITIONS as usize);
 
     content.bytes().for_each(|byte| match byte {
         b'0'..b':' => {
@@ -120,29 +129,37 @@ pub fn part2(content: &str) -> isize {
         _ => {}
     });
 
-    for n_iter in 1..MAX_STATES + 1 {
+    let mut var_y_min = f64::MAX;
+    let mut var_y_min_val = 0isize;
+
+    let mut var_x_min = f64::MAX;
+    let mut var_x_min_val = 0isize;
+
+    for n_iter in 0..103 {
         (&mut states).iter_mut().zip(&deltas).for_each(|(i, j)| {
             i.0 = (i.0 + j.0).rem_euclid(N);
             i.1 = (i.1 + j.1).rem_euclid(M)
         });
 
-        let avg_dist: usize = states
-            .iter()
-            .enumerate()
-            .map(|(idx, pt1)| {
-                let pt2 = &states[&states.len() - (idx + 1)];
-                pt1.0.abs_diff(pt2.0) + pt1.1.abs_diff(pt2.1)
-            })
-            .sum();
+        let var_x = calculate_variance(states.iter().map(|i| i.0));
+        if var_x < var_x_min {
+            var_x_min = var_x;
+            var_x_min_val = n_iter
+        }
 
-        println!("{n_iter} {avg_dist}");
-
-        if avg_dist < closest_dist {
-            closest_dist = avg_dist;
-            closest_iter = n_iter;
+        let var_y = calculate_variance(states.iter().map(|i| i.1));
+        if var_y < var_y_min {
+            var_y_min = var_y;
+            var_y_min_val = n_iter
         }
     }
-    closest_iter
+    for i in 0..MAX_STATES {
+        if i % 101 == var_x_min_val && i % 103 == var_y_min_val {
+            return i + 1;
+        }
+    }
+
+    panic!("We were doomed from the very start.")
 }
 
 #[cfg(test)]
