@@ -21,25 +21,8 @@ impl Machine {
         Machine { a, b, prize }
     }
 
-    fn solve(&mut self) -> isize {
-        let mut b_num = 0;
-
-        unsafe {
-            asm!(
-                "imul r9",
-                "mov {b_num:r}, rax",
-                "mov rax, r10",
-                "imul r11",
-                "sub {b_num}, rax",
-
-                b_num = inout(reg) b_num,
-                in("rax") self.a.1,
-                in("r9") self.prize.0,
-                in("r10") self.a.0,
-                in("r11") self.prize.1,
-            )
-        }
-
+    fn solve(&self) -> isize {
+        let b_num = self.a.1 * self.prize.0 - self.prize.1 * self.a.0;
         let b_den = self.b.0 * self.a.1 - self.a.0 * self.b.1;
 
         if b_num % b_den != 0 {
