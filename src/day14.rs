@@ -1,3 +1,5 @@
+use std::{hint::unreachable_unchecked, isize};
+
 const M: isize = 103;
 const N: isize = 101;
 
@@ -90,9 +92,10 @@ pub fn part2(content: &str) -> isize {
     let mut pointer = 0usize;
     let mut n = 0;
     let mut is_neg = false;
+    let mut counter = 0;
 
-    let mut states = Vec::with_capacity(N_POSITIONS as usize);
-    let mut deltas = Vec::with_capacity(N_POSITIONS as usize);
+    let mut states = [(0, 0); 500];
+    let mut deltas = [(0, 0); 500];
 
     content.bytes().for_each(|byte| match byte {
         b'0'..b':' => {
@@ -105,13 +108,13 @@ pub fn part2(content: &str) -> isize {
             }
             digits[pointer] = n;
 
-            states.push((digits[0], digits[1]));
-            deltas.push((digits[2], digits[3]));
+            states[counter] = (digits[0], digits[1]);
+            deltas[counter] = (digits[2], digits[3]);
 
+            counter += 1;
             n = 0;
             is_neg = false;
             pointer = 0;
-            digits = [0, 0, 0, 0];
         }
         b'-' => {
             is_neg = true;
@@ -129,11 +132,8 @@ pub fn part2(content: &str) -> isize {
         _ => {}
     });
 
-    let mut var_y_min = f64::MAX;
-    let mut var_y_min_val = 0isize;
-
-    let mut var_x_min = f64::MAX;
-    let mut var_x_min_val = 0isize;
+    let mut var_y_min = isize::MAX;
+    let mut var_x_min = isize::MAX;
 
     for n_iter in 0..103 {
         (&mut states).iter_mut().zip(&deltas).for_each(|(i, j)| {
@@ -142,24 +142,30 @@ pub fn part2(content: &str) -> isize {
         });
 
         let var_x = calculate_variance(states.iter().map(|i| i.0));
-        if var_x < var_x_min {
-            var_x_min = var_x;
-            var_x_min_val = n_iter
+        // Proxy results tend to be ~700-900.
+        if var_x < 550. {
+            var_x_min = n_iter;
+            if var_y_min != isize::MAX {
+                break;
+            }
         }
 
         let var_y = calculate_variance(states.iter().map(|i| i.1));
-        if var_y < var_y_min {
-            var_y_min = var_y;
-            var_y_min_val = n_iter
+        // Proxy esults tend to be ~700-900.
+        if var_y < 550. {
+            var_y_min = n_iter;
+            if var_x_min != isize::MAX {
+                break;
+            }
         }
     }
     for i in 0..MAX_STATES {
-        if i % 101 == var_x_min_val && i % 103 == var_y_min_val {
+        if i % 101 == var_x_min && i % 103 == var_y_min {
             return i + 1;
         }
     }
 
-    panic!("We were doomed from the very start.")
+    unsafe { unreachable_unchecked() }
 }
 
 #[cfg(test)]
